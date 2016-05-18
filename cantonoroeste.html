@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+    <head> 
+        <title>Canto Noroeste</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <style>
+            #quadroGeral input{
+                width: 50px;
+            }
+            table, th, td {
+               border: 1px solid black;
+            }
+        </style>
+        <script>
+        var f,c,matriz,tabela;
+        function geraQuadro(){
+            matriz = [];
+            tabela = document.getElementById('quadroGeral');   
+            tabela.innerHTML = '';
+            f = parseInt(document.getElementById('fornecedores').value);
+            c = parseInt(document.getElementById('consumidores').value);
+            
+            if(!f || !c){
+                alert('Número de Fornecedores e Consumidores devem ser maiores que 0!');
+                return;
+            }
+            
+            //Cria o layout da tabela
+            for(var i=0; i<= f+1; i++){
+                var linha = document.createElement('tr');        
+                for(var j=0; j <= c+1; j++){
+                    var tipo = (i == 0 || j == 0 ? 'th' : 'td');
+                    var celula = document.createElement(tipo);
+                    celula.id = 'celula-'+i+j;
+                    linha.appendChild(celula);
+                }
+                tabela.appendChild(linha);
+            }
+
+            //Popula a tabela com titulos e inputs
+            for(var i=0; i<= f+1; i++){
+                for(var j=0; j <= c+1; j++){
+                    var celula = document.getElementById('celula-'+i+j);
+
+                    if(i==0 || j==0){
+                        if(i>f){
+                            celula.innerHTML = 'Demanda';
+                        }else if(j>c){
+                            celula.innerHTML = 'Capacidade';
+                        }else if(j>0){
+                            celula.innerHTML = 'C'+j;
+                        }else if(i>0){
+                            celula.innerHTML = 'F'+i;
+                        }
+                    }else{
+                        var input = document.createElement('input');
+                            input.type = 'text';
+                            
+                        if(i>f && j<=c){
+                            input.id = 'dem-'+j;
+                            celula.appendChild(input);
+                        }else if(j>c && i<=f){
+                            input.id = 'cap-'+i;
+                            celula.appendChild(input);
+                        }                        
+                    }
+                }
+            }
+        }   
+
+        function initCantoNoroeste(){
+            if(!document.getElementById('cap-1')){
+                alert('Primeiro monte o quadro!');
+                return
+            }
+            //valida o preenchimento de todos os campos
+            for(var i=1; i<= f; i++){
+                if(!parseInt(document.getElementById('cap-'+i).value)){
+                    alert('Preencha todas as capacidades!');
+                    return
+                }
+            }
+            for(var j=1; j <= c; j++){
+                if(!parseInt(document.getElementById('dem-'+j).value)){
+                    alert('Preencha todas as demandas!');
+                    return
+                }
+            }
+            
+            //Inicia o calculo do canto noroeste
+            for(var j=1; j<= c; j++){
+                for(var i=1; i <= f; i++){
+                    var celula = document.getElementById('celula-'+i+j);
+                    var capacidade = parseInt(document.getElementById('cap-'+i).value);
+                    var demanda = parseInt(document.getElementById('dem-'+j).value);
+                     
+                    if(capacidade > 0 && demanda >0){
+                        var carga = Math.min(capacidade, demanda);
+                        
+                        celula.innerHTML = carga;
+                        document.getElementById('cap-'+i).value = capacidade - carga;
+                        document.getElementById('dem-'+j).value = demanda - carga;
+                        
+                    }else{
+                        celula.innerHTML = 'X';
+                    }
+                    
+                }
+            }            
+        }
+            //Popula a tabela com titulos e inputs
+            for(var i=0; i<= f+1; i++){
+                for(var j=0; j <= c+1; j++){
+                    var celula = document.getElementById('celula-'+i+j);
+
+                    if(i==0 || j==0){
+                        if(i>f){
+                            celula.innerHTML = 'Demanda';
+                        }else if(j>c){
+                            celula.innerHTML = 'Capacidade';
+                        }else if(j>0){
+                            celula.innerHTML = 'C'+j;
+                        }else if(i>0){
+                            celula.innerHTML = 'F'+i;
+                        }
+                    }else{
+                        var input = document.createElement('input');
+                            input.type = 'text';
+                            
+                        if(i>f){
+                            input.id = 'dem-'+j;
+                        }else if(j>c){
+                            input.id = 'cap-'+i;
+                        }else{
+                            input.id = 'ipt-'+i+j;
+                        }
+                        celula.appendChild(input);
+                    }
+                }
+            }
+        }   
+
+        function initCantoNoroeste(){
+            //val
+            for(var i=1; i<= f+1; i++){
+                for(var j=1; j <= c+1; j++){
+                    var prefixo = '';
+                    if(i>f){
+                        prefixo = 'dem-'+j;
+                    }else if(j>c){
+                        prefixo = 'cap-'+i;
+                    }else{
+                        prefixo = 'ipt-'+i+j;
+                    }
+                    if(!parseInt(document.getElementById(prefixo).value)){
+                        alert('Preencha todos os campos!');
+                        return
+                    }
+                }
+            }
+            
+            
+        }
+
+        </script>
+    </head>
+    <body>
+        <label>Numero de fornecedores:</label><input type="number" id="fornecedores" value=""><br>
+        <label>Numero de consumidores:</label><input type="number" id="consumidores" value=""><br>
+        <button onclick="geraQuadro();">Montar Quadro</button>
+        <button onclick="initCantoNoroeste();">Iniciar</button><br><br><br>
+        <table id="quadroGeral" ></table>
+        
+    </body>
+</html>
